@@ -56,7 +56,7 @@
   <div id="indicator">1 / 4</div>
 
   <script>
-    const INTERVAL = 30; // Sekunden pro Seite – hier anpassen
+    const INTERVAL = 45; // Sekunden pro Seite – hier anpassen
     const frames = document.querySelectorAll("iframe");
     const bar = document.getElementById("progress-bar");
     const indicator = document.getElementById("indicator");
@@ -78,7 +78,15 @@
       });
     }
 
-    showSlide(0);
+    // Alle iFrames vorladen bevor gestartet wird
+    let loaded = 0;
+    frames.forEach(f => {
+      f.addEventListener("load", () => {
+        loaded++;
+        if (loaded === 1) showSlide(0); // Erste Seite zeigen sobald bereit
+      });
+    });
+
     setInterval(() => {
       current = (current + 1) % frames.length;
       showSlide(current);
