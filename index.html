@@ -1,29 +1,88 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TV Dashboard</title>
+  <title>Automation Monitoring</title>
   <style>
-    html, body { margin:0; height:100%; background:#000; }
-    .grid{
-      height:100%;
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      grid-template-rows:1fr 1fr;
-      gap:6px;
-      padding:6px;
-      box-sizing:border-box;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
+
+    iframe {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+      pointer-events: none;
     }
-    iframe{ width:100%; height:100%; border:0; background:#fff; }
+    iframe.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Fortschrittsbalken unten */
+    #progress-bar {
+      position: fixed;
+      bottom: 0; left: 0;
+      height: 4px;
+      width: 0%;
+      background: #4CAF50;
+      z-index: 999;
+      transition: width linear;
+    }
+
+    /* Seitenindikator */
+    #indicator {
+      position: fixed;
+      bottom: 10px;
+      right: 16px;
+      color: rgba(255,255,255,0.4);
+      font-family: sans-serif;
+      font-size: 13px;
+      z-index: 999;
+    }
   </style>
 </head>
 <body>
-  <div class="grid">
-    <iframe src="https://lookerstudio.google.com/embed/reporting/9c1f248b-cb6a-4c6c-8a1b-84162a882970/page/OkpqF"></iframe>
-    <iframe src="https://lookerstudio.google.com/embed/reporting/9c1f248b-cb6a-4c6c-8a1b-84162a882970/page/p_ha8vla7f1d"></iframe>
-    <iframe src="https://lookerstudio.google.com/embed/reporting/9c1f248b-cb6a-4c6c-8a1b-84162a882970/page/p_4yslklbg1d"></iframe>
-    <iframe src="https://lookerstudio.google.com/embed/reporting/9c1f248b-cb6a-4c6c-8a1b-84162a882970/page/p_go5xg0fg1d"></iframe>
-  </div>
+
+  <iframe id="f0" src="https://lookerstudio.google.com/embed/reporting/9c1f248b-cb6a-4c6c-8a1b-84162a882970/page/OkpqF"></iframe>
+  <iframe id="f1" src="https://lookerstudio.google.com/embed/reporting/9c1f248b-cb6a-4c6c-8a1b-84162a882970/page/p_ha8vla7f1d"></iframe>
+  <iframe id="f2" src="https://lookerstudio.google.com/embed/reporting/9c1f248b-cb6a-4c6c-8a1b-84162a882970/page/p_4yslklbg1d"></iframe>
+  <iframe id="f3" src="https://lookerstudio.google.com/embed/reporting/9c1f248b-cb6a-4c6c-8a1b-84162a882970/page/p_go5xg0fg1d"></iframe>
+
+  <div id="progress-bar"></div>
+  <div id="indicator">1 / 4</div>
+
+  <script>
+    const INTERVAL = 30; // Sekunden pro Seite – hier anpassen
+    const frames = document.querySelectorAll("iframe");
+    const bar = document.getElementById("progress-bar");
+    const indicator = document.getElementById("indicator");
+    let current = 0;
+
+    function showSlide(i) {
+      frames.forEach(f => f.classList.remove("active"));
+      frames[i].classList.add("active");
+      indicator.textContent = (i + 1) + " / " + frames.length;
+
+      // Fortschrittsbalken animieren
+      bar.style.transition = "none";
+      bar.style.width = "0%";
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          bar.style.transition = `width ${INTERVAL}s linear`;
+          bar.style.width = "100%";
+        });
+      });
+    }
+
+    showSlide(0);
+    setInterval(() => {
+      current = (current + 1) % frames.length;
+      showSlide(current);
+    }, INTERVAL * 1000);
+  </script>
 </body>
 </html>
